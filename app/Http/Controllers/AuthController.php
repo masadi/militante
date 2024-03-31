@@ -31,7 +31,8 @@ class AuthController extends Controller
         $user = new User([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => bcrypt($request->password)
+            'password' => bcrypt($request->password),
+            'role' => 'user',
         ]);
         if($user->save()){
         return response()->json([
@@ -64,24 +65,63 @@ class AuthController extends Controller
             'message' => 'Unauthorized'
         ], 401);
         $user = $request->user();
-        $user->role = 'guru';
         $tokenResult = $user->createToken('Personal Access Token');
-        $token = $tokenResult->token;
-        if ($request->remember_me)
-        $token->expires_at = Carbon::now()->addWeeks(1);
-        $token->save();
+        //$token = $tokenResult->token;
+        //if ($request->remember_me)
+        //$token->expires_at = Carbon::now()->addWeeks(1);
+        //$token->save();
         return response()->json([
-            'accessToken' => $tokenResult->accessToken,
+            'accessToken' => $tokenResult->plainTextToken,
             'userData' => $user,
-            'userAbilityRules' => [
+            'userAbilityRules' => $this->userAbilities($user->role),
+            'token_type' => 'Bearer',
+            //'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString(),
+        ]);
+    }
+    private function userAbilities($role){
+        $abilities = [
+            'admin' => [
                 [
+                    'action' => 'read',
+                    'subject' => 'Web',
+                ],
+                /*[
                     'action' => 'manage',
                     'subject' => 'all',
+                ]*/
+            ],
+            'user' => [
+                [
+                    'action' => 'read',
+                    'subject' => 'Web',
                 ]
             ],
-            'token_type' => 'Bearer',
-            'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString(),
-        ]);
+            'dpp' => [
+                [
+                    'action' => 'read',
+                    'subject' => 'Web',
+                ]
+            ],
+            'dpw' => [
+                [
+                    'action' => 'read',
+                    'subject' => 'Web',
+                ]
+            ],
+            'dpc' => [
+                [
+                    'action' => 'read',
+                    'subject' => 'Web',
+                ]
+            ],
+            'dpac' => [
+                [
+                    'action' => 'read',
+                    'subject' => 'Web',
+                ]
+            ],
+        ];
+        return $abilities[$role];
     }
     /**
     * Get the authenticated User

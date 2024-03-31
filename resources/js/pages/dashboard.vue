@@ -9,7 +9,16 @@ import CrmRecentTransactions from '@/views/dashboards/crm/CrmRecentTransactions.
 import CrmRevenueGrowth from '@/views/dashboards/crm/CrmRevenueGrowth.vue'
 import CrmSalesAreaCharts from '@/views/dashboards/crm/CrmSalesAreaCharts.vue'
 import CrmSalesByCountries from '@/views/dashboards/crm/CrmSalesByCountries.vue'
-
+definePage({ 
+  meta: {
+    action: 'read',
+    subject: 'Web',
+  }
+})
+const { 
+  data: res,
+  execute: fetchData,
+} = await useApi(`/dashboard`)
 const simpleStatisticsDemoCards = [
   {
     icon: 'tabler-credit-card',
